@@ -6,4 +6,7 @@
 
     <!-- detail -->
     <dimen name="detail_card_max_width">704dp</dimen>
+    <dimen name="detail_photo_height">600dp</dimen>
+    <dimen name="detail_body_overlay_top">96dp</dimen>
+    <dimen name="detail_app_bar_elevation">0dp</dimen>
 </resources>

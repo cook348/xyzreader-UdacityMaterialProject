@@ -6,4 +6,8 @@
     <dimen name="detail_metabar_vert_padding">32dp</dimen>
     <dimen name="detail_metabar_title_bottom_padding">8dp</dimen>
     <dimen name="detail_body_bottom_margin">96dp</dimen>
+
+    <!--<dimen name="detail_body_overlay_top">344dp</dimen>-->
+    <!--<dimen name="detail_app_bar_elevation">0dp</dimen>-->
+
 </resources>
