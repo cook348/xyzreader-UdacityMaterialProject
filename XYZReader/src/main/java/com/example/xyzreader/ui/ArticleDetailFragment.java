@@ -12,7 +12,6 @@ import android.support.v7.graphics.Palette;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,6 +95,8 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
+
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
 
 
@@ -108,9 +109,7 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-
 //        mScrollView = (NestedScrollView) mRootView.findViewById(R.id.scrollview);
-
 
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
 //        mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
@@ -127,7 +126,7 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        bindViews();
+//        bindViews();  // Per suggestion on the forum: https://discussions.udacity.com/t/solved-text-not-displaying-always/177485
         return mRootView;
     }
 
@@ -181,9 +180,6 @@ public class ArticleDetailFragment extends Fragment implements
                                 mPhotoView.setImageBitmap(imageContainer.getBitmap());
                                 mRootView.findViewById(R.id.meta_bar)
                                         .setBackgroundColor(mMutedColor);
-
-                                Log.d(TAG, "Image Height = " + mPhotoView.getHeight());
-
                             }
                         }
 
@@ -216,7 +212,6 @@ public class ArticleDetailFragment extends Fragment implements
 
         mCursor = cursor;
         if (mCursor != null && !mCursor.moveToFirst()) {
-            Log.e(TAG, "Error reading item detail cursor");
             mCursor.close();
             mCursor = null;
         }

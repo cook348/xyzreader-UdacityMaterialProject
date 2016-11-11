@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.annotation.TargetApi;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,9 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
@@ -40,6 +46,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
+
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -127,17 +134,23 @@ public class ArticleListActivity extends AppCompatActivity implements
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
             view.setOnClickListener(new View.OnClickListener() {
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onClick(View view) {
+                    Bundle bundle = ActivityOptionsCompat
+                            .makeSceneTransitionAnimation(
+                                    ArticleListActivity.this,
+                                    vh.thumbnailView,
+                                    vh.thumbnailView.getTransitionName()).toBundle();
                     startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))), bundle);
                 }
             });
             return vh;
         }
 
         @Override
-        public void onBindViewHolder(ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, int position) {
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             holder.subtitleView.setText(
@@ -147,6 +160,27 @@ public class ArticleListActivity extends AppCompatActivity implements
                             DateUtils.FORMAT_ABBREV_ALL).toString()
                             + " by "
                             + mCursor.getString(ArticleLoader.Query.AUTHOR));
+            ImageLoader imageLoader = ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader();
+            imageLoader.get(mCursor.getString(ArticleLoader.Query.THUMB_URL), new ImageLoader.ImageListener() {
+                @Override
+                public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+
+                    // TODO good idea?
+//                    Bitmap bitmap = imageContainer.getBitmap();
+//                    if (bitmap != null) {
+//                        Palette p = Palette.generate(bitmap, 12);
+//                        int color = p.getDarkMutedColor(0xFF333333);
+//                        holder.cardView.setBackgroundColor(color);
+//
+//                    }
+                }
+
+                @Override
+                public void onErrorResponse(VolleyError volleyError) {
+
+                }
+            });
+
             holder.thumbnailView.setImageUrl(
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
@@ -160,6 +194,7 @@ public class ArticleListActivity extends AppCompatActivity implements
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        public CardView cardView;
         public DynamicHeightNetworkImageView thumbnailView;
         public TextView titleView;
         public TextView subtitleView;
@@ -169,6 +204,7 @@ public class ArticleListActivity extends AppCompatActivity implements
             thumbnailView = (DynamicHeightNetworkImageView) view.findViewById(R.id.thumbnail);
             titleView = (TextView) view.findViewById(R.id.article_title);
             subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
+            cardView = (CardView) view.findViewById(R.id.list_item_card);
         }
     }
 }

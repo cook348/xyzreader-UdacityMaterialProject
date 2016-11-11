@@ -30,4 +30,9 @@
     <color name="icons">#FFFFFF</color>
     <color name="divider">#BDBDBD</color>
 
+    <color name="lightest_text_on_dark_bg">#ddffffff</color>
+    <color name="light_text_on_dark_bg">#b2ffffff</color>
+
+    <color name="scrim_gradient_end">#85000000</color>
+
 </resources>

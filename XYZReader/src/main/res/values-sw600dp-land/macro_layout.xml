@@ -1,10 +1,12 @@
 <resources>
+    <!--list-->
+    <integer name="list_column_count">4</integer>
+
     <!-- detail -->
     <bool name="detail_is_card">true</bool>
-
-    <dimen name="detail_photo_height">600dp</dimen>
+    <dimen name="detail_photo_height">560dp</dimen>
     <dimen name="detail_card_top_margin">256dp</dimen>
-
-    <dimen name="detail_body_overlay_top">344dp</dimen>
-    <dimen name="detail_app_bar_elevation">0dp</dimen>
+    <dimen name="detail_body_overlay_top">328dp</dimen>
+    <dimen name="detail_nested_scrollview_elevation">6dp</dimen>
+    <dimen name="detail_appbar_elevation">0dp</dimen>
 </resources>

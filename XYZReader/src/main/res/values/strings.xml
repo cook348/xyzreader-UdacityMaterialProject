@@ -20,4 +20,6 @@ Maecenas et orci ligula. Nulla semper dolor arcu. Fusce viverra dapibus semper. 
     <string name="header_image">Header Image</string>
 
 
+    <string name="transition_image">image_transition</string>
+
 </resources>

@@ -48,5 +48,3 @@
     </android.support.design.widget.AppBarLayout>
 
 </android.support.design.widget.CoordinatorLayout>
-
-    <!--TODO: increase the number of columns on wider screens - currently the items are a little stretched in landscape on large tablet-->
