@@ -19,4 +19,7 @@
     <dimen name="detail_nested_scrollview_elevation">0dp</dimen>
 
     <dimen name="detail_appbar_elevation">4dp</dimen>
+
+    <dimen name="dimen_pager_scroll_anim_size">16dp</dimen>
+
 </resources>
