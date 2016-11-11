@@ -11,8 +11,12 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.Window;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -22,7 +26,7 @@ import com.example.xyzreader.data.ItemsContract;
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
 public class ArticleDetailActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<Cursor> {
+        implements LoaderManager.LoaderCallbacks<Cursor>, ArticleDetailFragment.ImageLoadedListener {
 
     private static final String TAG = ArticleDetailActivity.class.getSimpleName();
     private Cursor mCursor;
@@ -40,17 +44,29 @@ public class ArticleDetailActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
+            Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.shared_image_transform);
+            getWindow().setSharedElementExitTransition(transition);
+            getWindow().setSharedElementEnterTransition(transition);
+
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
+            // Postpone the shared element enter transition. - per http://www.androiddesignpatterns.com/2015/03/activity-postponed-shared-element-transitions-part3b.html
+            postponeEnterTransition();
+
         }
+
         setContentView(R.layout.activity_article_detail);
 
         getLoaderManager().initLoader(0, null, this);
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
-        mPager.setOffscreenPageLimit(0); // TODO is this really working?
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageMargin((int) TypedValue
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
@@ -74,6 +90,32 @@ public class ArticleDetailActivity extends AppCompatActivity
                 mSelectedItemId = mStartId;
             }
         }
+    }
+
+    /**
+     * Based on: http://www.androiddesignpatterns.com/2015/03/activity-postponed-shared-element-transitions-part3b.html and forum discussion 193775
+     * Schedules the shared element transition to be started immediately
+     * after the shared element has been measured and laid out within the
+     * activity's view hierarchy.
+     */
+    private void scheduleStartPostponedTransition(final View sharedView) {
+        sharedView.getViewTreeObserver().addOnPreDrawListener(
+                new ViewTreeObserver.OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        sharedView.getViewTreeObserver().removeOnPreDrawListener(this);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            startPostponedEnterTransition();
+                        }
+                        return true;
+                    }
+                });
+    }
+
+    @Override
+    public void onImageLoaded(View sharedView) {
+        // Receive callback from fragment that image has loaded
+        scheduleStartPostponedTransition(sharedView);
     }
 
     @Override

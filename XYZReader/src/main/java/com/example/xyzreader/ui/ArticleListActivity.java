@@ -1,6 +1,5 @@
 package com.example.xyzreader.ui;
 
-import android.annotation.TargetApi;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,12 +17,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.TextView;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
@@ -45,6 +45,18 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Set up for transitions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+            getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
+            Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.shared_image_transform);
+            getWindow().setSharedElementExitTransition(transition);
+            getWindow().setSharedElementEnterTransition(transition);
+
+        }
+
         setContentView(R.layout.activity_article_list);
 
 
@@ -134,23 +146,33 @@ public class ArticleListActivity extends AppCompatActivity implements
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
             view.setOnClickListener(new View.OnClickListener() {
-                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onClick(View view) {
-                    Bundle bundle = ActivityOptionsCompat
-                            .makeSceneTransitionAnimation(
-                                    ArticleListActivity.this,
-                                    vh.thumbnailView,
-                                    vh.thumbnailView.getTransitionName()).toBundle();
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))), bundle);
+                    // set the transition name here to be the article_ID
+                    // then set the corresponding transition name within the fragment
+                    long itemId = getItemId(vh.getAdapterPosition());
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        vh.thumbnailView.setTransitionName(Long.toString(itemId));
+
+                        Bundle bundle = ActivityOptionsCompat
+                                .makeSceneTransitionAnimation(
+                                        ArticleListActivity.this,
+                                        vh.thumbnailView,
+                                        Long.toString(itemId)).toBundle();
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                ItemsContract.Items.buildItemUri(itemId)), bundle);
+                    } else {
+                        startActivity(new Intent(Intent.ACTION_VIEW,
+                                ItemsContract.Items.buildItemUri(itemId)));
+                    }
                 }
             });
             return vh;
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(ViewHolder holder, int position) {
             mCursor.moveToPosition(position);
             holder.titleView.setText(mCursor.getString(ArticleLoader.Query.TITLE));
             holder.subtitleView.setText(
@@ -160,27 +182,6 @@ public class ArticleListActivity extends AppCompatActivity implements
                             DateUtils.FORMAT_ABBREV_ALL).toString()
                             + " by "
                             + mCursor.getString(ArticleLoader.Query.AUTHOR));
-            ImageLoader imageLoader = ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader();
-            imageLoader.get(mCursor.getString(ArticleLoader.Query.THUMB_URL), new ImageLoader.ImageListener() {
-                @Override
-                public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
-
-                    // TODO good idea?
-//                    Bitmap bitmap = imageContainer.getBitmap();
-//                    if (bitmap != null) {
-//                        Palette p = Palette.generate(bitmap, 12);
-//                        int color = p.getDarkMutedColor(0xFF333333);
-//                        holder.cardView.setBackgroundColor(color);
-//
-//                    }
-                }
-
-                @Override
-                public void onErrorResponse(VolleyError volleyError) {
-
-                }
-            });
-
             holder.thumbnailView.setImageUrl(
                     mCursor.getString(ArticleLoader.Query.THUMB_URL),
                     ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());

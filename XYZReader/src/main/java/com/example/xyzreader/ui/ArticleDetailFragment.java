@@ -1,11 +1,13 @@
 package com.example.xyzreader.ui;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
@@ -47,6 +49,11 @@ public class ArticleDetailFragment extends Fragment implements
     private int mStatusBarFullOpacityBottom;
 
 
+    public interface ImageLoadedListener {
+        public void onImageLoaded(View sharedview);
+    }
+
+    ImageLoadedListener mImageLoadedListener;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -82,6 +89,22 @@ public class ArticleDetailFragment extends Fragment implements
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        // Verify that the host activity implements the callback interface
+        try {
+            // Instantiate the Listener so we can send events to the hosting activity
+            mImageLoadedListener = (ImageLoadedListener) activity;
+        } catch (ClassCastException e) {
+            // The activity doesn't implement the interface, throw exception
+            throw new ClassCastException(activity.toString()
+                    + " must implement ImageLoadedListener");
+        }
+
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -109,12 +132,7 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-//        mScrollView = (NestedScrollView) mRootView.findViewById(R.id.scrollview);
-
         mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
-//        mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
-
-//        mStatusBarColorDrawable = new ColorDrawable(0);
 
         mRootView.findViewById(R.id.share_fab).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,7 +144,6 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-//        bindViews();  // Per suggestion on the forum: https://discussions.udacity.com/t/solved-text-not-displaying-always/177485
         return mRootView;
     }
 
@@ -156,6 +173,12 @@ public class ArticleDetailFragment extends Fragment implements
 //        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
 
         if (mCursor != null) {
+
+            // Set the transition name of the photo view to correspond to the article id passed in
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mPhotoView.setTransitionName(Long.toString(mItemId));
+            }
+
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
             mRootView.animate().alpha(1);
@@ -181,6 +204,9 @@ public class ArticleDetailFragment extends Fragment implements
                                 mRootView.findViewById(R.id.meta_bar)
                                         .setBackgroundColor(mMutedColor);
                             }
+                            // notify the host activity that the image has been loaded and the
+                            // shared element animation can start.
+                            mImageLoadedListener.onImageLoaded(mPhotoView);
                         }
 
                         @Override
