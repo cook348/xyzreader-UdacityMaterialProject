@@ -24,8 +24,8 @@
             <!--@transition/grid_exit-->
         <!--</item>-->
 
-        <item name="android:windowSharedElementEnterTransition">
-            @transition/shared_image_transform</item>
+        <!--<item name="android:windowSharedElementEnterTransition">-->
+            <!--@transition/shared_image_transform</item>-->
 
     </style>
 
