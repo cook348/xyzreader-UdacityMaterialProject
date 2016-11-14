@@ -7,6 +7,6 @@
     <dimen name="detail_photo_height">560dp</dimen>
     <dimen name="detail_card_top_margin">256dp</dimen>
     <dimen name="detail_body_overlay_top">328dp</dimen>
-    <dimen name="detail_nested_scrollview_elevation">6dp</dimen>
+    <dimen name="detail_nested_scrollview_elevation">4dp</dimen>
     <dimen name="detail_appbar_elevation">0dp</dimen>
 </resources>
