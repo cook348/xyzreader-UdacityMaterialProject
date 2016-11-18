@@ -1,7 +1,5 @@
 package com.example.xyzreader.ui;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
@@ -120,56 +118,6 @@ public class ArticleDetailActivity extends AppCompatActivity
         scheduleStartPostponedTransition(sharedView);
     }
 
-    @Override
-    public void onEnterAnimationComplete() {
-        super.onEnterAnimationComplete();
-
-        // Set up an animation that reveals the view pager to the user
-        final float scrollX = mPager.getScrollX();
-        float pagerWidth = mPager.getWidth();
-
-        int numItems = mPagerAdapter.getCount();
-
-        int scrollFinal = 0;
-        if(scrollX < pagerWidth*(numItems-1)){
-            scrollFinal = (int)scrollX + (int)pagerWidth/12;
-        } else {
-            scrollFinal = (int)scrollX - (int)pagerWidth/12;
-        }
-
-
-        Animator animator = ObjectAnimator.ofInt(mPager, "scrollX", scrollFinal)
-                .setDuration(400);
-        animator.setStartDelay(300);
-
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                Animator animatorBack = ObjectAnimator.ofInt(mPager, "scrollX", (int)scrollX)
-                        .setDuration(200);
-                animatorBack.start();
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-
-            }
-        });
-        animator.start();
-
-
-
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
